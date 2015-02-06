@@ -1,0 +1,46 @@
+ext.projectIds = ['group': 'com.manning.gia', 'version': '0.1']
+
+group = projectIds.group
+version = projectIds.version
+
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+}
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: "findbugs"
+
+    sourceCompatibility = 1.7
+    targetCompatibility = 1.7
+
+    [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+    //创建项目的源代码目录
+    task createDirs << {
+        sourceSets*.java.srcDirs*.each { it.mkdirs() }
+        sourceSets*.resources.srcDirs*.each { it.mkdirs() }
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+}
+
+
+
+
+
+def qualifyVersionIfNecessary(version) {
+    if (rootProject.hasProperty("BRANCH_NAME")) {
+        def qualifier = rootProject.getProperty("BRANCH_NAME")
+        if (qualifier.startsWith("SPR-")) {
+            return version.replace('BUILD', qualifier)
+        }
+    }
+    return version
+}
